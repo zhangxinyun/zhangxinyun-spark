@@ -1,0 +1,5 @@
+# Spark 相关配置
+spark-master: "local[2]"
+
+# 数据源
+data-source: "hdfs:///user/anthony/data.txt"
