@@ -1,16 +1,9 @@
 #encoding:utf-8
 from pyspark import SparkContext, SparkConf
 from pyspark.mllib.feature import HashingTF, IDF
-
-import yaml
 import jieba
 
-
-def load_config():
-    yaml_file = open('config/config.yml')
-    config = yaml.safe_load(yaml_file)
-    yaml_file.close()
-    return config
+import settings
 
 def spark_context(master):
     conf = SparkConf().setAppName('zhangxinyun-spark').setMaster(master)
@@ -21,14 +14,11 @@ def tokenize(data):
     return data.map(lambda line: jieba.cut(line))
 
 def main():
-    # 加载配置文件
-    config = load_config()
-
     # 初始化 SparkContext
-    sc = spark_context(config['spark-master'])
+    sc = spark_context(spark_master)
 
     # 读取文件
-    data = sc.textFile(config['data-source'])
+    data = sc.textFile(dhfs_path)
 
     # 分词
     documents = tokenize(data)
