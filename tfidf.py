@@ -1,8 +1,10 @@
 #encoding:utf-8
 from pyspark import SparkContext, SparkConf
+from pyspark.mllib.feature import HashingTF, IDF
 
 import yaml
 import jieba
+
 
 def load_config():
     yaml_file = open('config/config.yml')
@@ -15,11 +17,8 @@ def spark_context(master):
     sc = SparkContext(conf=conf)
     return sc
 
-def tokenize(line):
-    return jieba.cut(line)
-
-def tf(data):
-    return data.flatMap(lambda line: tokenize(line)).map(lambda term: (term, 1)).reduceByKey(lambda x,y: x + y)
+def tokenize(data):
+    return data.map(lambda line: jieba.cut(line))
 
 def main():
     # 加载配置文件
@@ -31,11 +30,18 @@ def main():
     # 读取文件
     data = sc.textFile(config['data-source'])
 
-    # 词频计算
-    term_frequence = tf(data)
+    # 分词
+    documents = tokenize(data)
 
-    # 打印结果
-    print term_frequence.collect()
+    # TF
+    hashingTF = HashingTF()
+    tf = hashingTF.transform(documents)
+    tf.cache()
 
+    # IDF
+    idf = IDF(minDocFreq=2).fit(tf)
+    
+    # TFIDF
+    #tfidf = idf.transform(tf)
 
 main()
