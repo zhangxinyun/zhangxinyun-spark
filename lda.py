@@ -1,9 +1,9 @@
 #encoding:utf-8
+from pyspark import SparkContext, SparkConf
 from pyspark.mllib.clustering import LDA, LDAModel
 from pyspark.mllib.linalg import Vectors
-import jieba
 
-import settings
+from settings import spark_master, hdfs_path
 
 def spark_context(master):
     conf = SparkConf().setAppName('zhangxinyun-spark').setMaster(master)
