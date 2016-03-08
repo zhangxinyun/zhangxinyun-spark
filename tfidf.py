@@ -9,9 +9,10 @@ def spark_context(master):
     sc = SparkContext(conf=conf)
     return sc
 
-def tokenize(data):
-    import jieba
-    return data.map(lambda line: jieba.cut(line))
+def tokenize(line):
+    import jieba.posseg
+    terms = posseg.cut(line)
+    return [term for term, flag in terms if flag in ['an', 'n', 'nz', 'vn']];
 
 def main():
     # 初始化 SparkContext
@@ -21,7 +22,7 @@ def main():
     data = sc.textFile(hdfs_path)
 
     # 分词
-    documents = tokenize(data)
+    documents = data.map(tokenize)
 
     # TF
     hashingTF = HashingTF()
