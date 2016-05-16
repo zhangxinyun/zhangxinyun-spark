@@ -19,7 +19,14 @@ def tokenize(line):
 def hashing_term_mapping(documents):
     return documents.flatMap(lambda document: document).distinct().map(lambda term: ((hash(term) % (2 << 10)), term))
 
+def clear_mongodb(client):
+    client.zxy.topics.delete_many({})
+
 def send_mongodb(client, doc):
+    from random import randint
+    doc['x'] = randint(1, 10)
+    doc['y'] = randint(1, 10)
+    doc['z'] = randint(1, 10)
     client.zxy.topics.insert_one(doc)
 
 def main():
@@ -48,8 +55,9 @@ def main():
     from pymongo import MongoClient
     mongo_client = MongoClient(mongo_host)
     mongo_client.admin.authenticate(mongo_user, mongo_pass, mechanism='SCRAM-SHA-1')
+    clear_mongodb(mongo_client)
 
-    # 打印结果
+    # 保存结果到 MongoDB
     topics = ldaModel.describeTopics(maxTermsPerTopic=10)
     for topic in range(3):
         doc = {}
