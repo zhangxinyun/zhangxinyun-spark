@@ -61,14 +61,11 @@ def main():
 
     # zip
     term_tfidf = documents.zip(tfidf).map(doc_tfidf)
-    for article in term_tfidf.collect():
-        data = {}
-        data['terms'] = []
-        for term in article:
-            item = {}
-            item['text'] = term[0].encode('utf-8')
-            item['size'] = int(term[1] * 100)
-            data['terms'].append(item)
-        send_mongodb(mongo_client, data)
+    articles = term_tfidf.flatMap(lambda i: i).reduceByKey(lambda x, y: x + y)
+    for article in articles.collect():
+        item = {}
+        item['text'] = article[0].encode('utf-8')
+        item['size'] = int(article[1] * 10)
+        send_mongodb(mongo_client, item)
 
 main()
